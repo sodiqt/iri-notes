@@ -5,14 +5,18 @@ export TZ=Africa/Lagos
 mkdir -p transcripts
 DAY=$(date +%u)
 
-# Your school windows (timetable + 10min start, + 10min end; Thursday merged P5+P6)
-case $DAY in
-  1) SLOTS="09:40 P5_lets_go_learning 1800;11:15 P6_auntie_bola 1500" ;;
-  3) SLOTS="10:40 P5_lets_go_learning 1800;11:15 P6_auntie_bola 1500" ;;
-  4) SLOTS="11:15 THU_P5_and_P6_combined 3300" ;;
-  *) echo "No IRI for P5/P6 today."; exit 0 ;;
-esac
-[ "${1:-}" = "test" ] && SLOTS="now TEST_60sec 60"
+# Test mode: 60-second recording right now (works on ANY day)
+if [ "${1:-}" = "test" ]; then
+  SLOTS="now TEST_60sec 60"
+else
+  # School windows: timetable +10min start, +10min end; Thursday merged P5+P6
+  case $DAY in
+    1) SLOTS="09:40 P5_lets_go_learning 1800;11:15 P6_auntie_bola 1500" ;;
+    3) SLOTS="10:40 P5_lets_go_learning 1800;11:15 P6_auntie_bola 1500" ;;
+    4) SLOTS="11:15 THU_P5_and_P6_combined 3300" ;;
+    *) echo "No IRI for P5/P6 today."; exit 0 ;;
+  esac
+fi
 
 stream_sources() {
   [ -n "${FIXED_STREAM_URL:-}" ] && echo "$FIXED_STREAM_URL"
