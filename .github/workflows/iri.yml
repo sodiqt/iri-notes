@@ -1,16 +1,22 @@
 name: iri-recorder
+
 on:
   schedule:
-    - cron: "35 8 * * 1-4"      # 9:35am Lagos time, Mon-Thu (GitHub cron is UTC)
-  workflow_dispatch:             # manual button = 60-second test
+    - cron: "35 8 * * 1-4"
+  workflow_dispatch:
+    inputs:
+      test:
+        description: "Type test here for a 60-second test run"
+        required: false
+        default: ""
+
 permissions:
   contents: write
+
 jobs:
   record:
     runs-on: ubuntu-latest
     timeout-minutes: 350
-    env:
-      FIXED_STREAM_URL: ${{ vars.STREAM_URL }}   # optional, see notes
     steps:
       - uses: actions/checkout@v4
       - name: Install tools
@@ -19,7 +25,7 @@ jobs:
           sudo apt-get install -y ffmpeg yt-dlp
           pip install -q faster-whisper
       - name: Record and transcribe today's IRI
-        run: bash iri_day.sh "${{ github.event_name == 'workflow_dispatch' && 'test' || '' }}"
+        run: bash .github/workflows/iri_day.sh "${{ inputs.test }}"
       - name: Publish transcripts into the repo
         run: |
           git config user.name "iri-bot"
